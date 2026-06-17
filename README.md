@@ -14,6 +14,7 @@ The name **Clean Slate Computing** comes from the first idea collected here: if 
 |---|---|---|
 | Designing the whole information-age stack from scratch | [ideas/clean-slate-computing-stack.md](ideas/clean-slate-computing-stack.md) | [ideas/clean-slate-computing-stack.zh-CN.md](ideas/clean-slate-computing-stack.zh-CN.md) |
 | A complete blueprint (performance-first; fresh ISA borrowing RISC-V's methodology) | [ideas/clean-slate-computing-full-blueprint.md](ideas/clean-slate-computing-full-blueprint.md) | [ideas/clean-slate-computing-full-blueprint.zh-CN.md](ideas/clean-slate-computing-full-blueprint.zh-CN.md) |
+| Single-layer deep dive: instruction set & chip architecture | [ideas/layer-deep-dive-isa.md](ideas/layer-deep-dive-isa.md) | [ideas/layer-deep-dive-isa.zh-CN.md](ideas/layer-deep-dive-isa.zh-CN.md) |
 
 ## Notes
 

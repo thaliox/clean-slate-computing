@@ -1,56 +1,54 @@
-# 如果从头设计信息时代的全部软硬件,会如何规划?
+# Designing the Entire Information-Age Stack From Scratch
 
-> 收录于 2026 年 6 月。讨论性质,前提是先忽略硬件设备和生产制造的问题。
+`English | `[中文](clean-slate-computing-stack.zh-CN.md)
 
-## 原始问题
+> Collected June 2026. Exploratory discussion. Premise: set aside hardware devices and manufacturing for now.
 
-> 如果可以从头来设计信息化时代的全部硬件,如电脑、服务器、网络设备、操作系统、应用程序,你会如何规划?可以先忽略硬件设备和生产制造的问题。
+## Original question
 
-## 回答
+> If you could design all the hardware of the information age from scratch — computers, servers, network devices, operating systems, applications — how would you plan it? You may ignore the hardware-device and manufacturing problems for now.
 
-今天的计算机栈之所以「乱」,大多不是因为当年的人笨,而是几十年增量演进、兼容包袱、网络效应叠加的结果——很多更优雅的设计输了,不是输在技术,而是输在生态。所以从头设计,真正的机会是**把今天「事后补丁」的东西,变成「从底层内建」的东西**。
+## Answer
 
-### 一、贯穿全栈的设计哲学
+The reason today's computing stack is "messy" is mostly not that the people back then were foolish — it's the accumulation of decades of incremental evolution, backward-compatibility baggage, and network effects. Many more elegant designs lost, not on technical merit, but on ecosystem. So the real opportunity in a from-scratch design is to **turn what is "patched on after the fact" today into what is "built in from the foundation."**
 
-1. **安全是地基,不是补丁。** 今天的安全(TLS、沙箱、权限、杀毒)几乎全是后补的,因为底层假设「默认信任」。重来的话,让**默认零信任、默认加密、默认最小权限**成为每一层的出厂状态,而不是配置出来的。
+### I. Design philosophy that runs through the whole stack
 
-2. **用「能力(capability)」取代「身份+权限」。** 现在是「你是谁 → 查你有没有权限」,链条长、易错配。更好的模型是:**谁拿到一个能力令牌,谁才能做对应的事**,权限随对象传递、可收回、可审计。这能从根上消灭大量越权和提权漏洞。
+1. **Security is the foundation, not a patch.** Today's security (TLS, sandboxes, permissions, antivirus) is almost all bolted on, because the underlying assumption is "trust by default." Redone, you would make **zero-trust by default, encryption by default, least-privilege by default** the factory state of every layer, rather than something you have to configure.
 
-3. **内存安全和形式化验证作为底线。** 今天绝大多数严重漏洞来自内存不安全(C/C++)。重来的话,系统级默认用内存安全语言,核心组件(内核、加密库)做**形式化验证**(seL4 已经证明微内核可以被数学证明无 bug)。
+2. **Replace "identity + permissions" with "capabilities."** Today it's "who are you → check whether you have permission" — a long chain that is easy to misconfigure. A better model: **whoever holds a capability token can do the corresponding thing**, with permissions passed along with objects, revocable, and auditable. This eliminates a huge class of privilege-escalation and unauthorized-access bugs at the root.
 
-4. **简洁优先,抵抗「附带复杂度」。** 每一层都要能被一个人在合理时间里理解。复杂度是安全和可维护性的天敌。
+3. **Memory safety and formal verification as the baseline.** The vast majority of severe vulnerabilities today come from memory unsafety (C/C++). Redone, the system level defaults to a memory-safe language, and core components (kernel, crypto libraries) are **formally verified** (seL4 has already proven that a microkernel can be mathematically proven bug-free).
 
-5. **数据归用户,应用来访问。** 今天是「每个 App 各自囤一份你的数据」。反过来:**用户拥有自己的数据仓,应用申请能力来读写**,数据可携带、可撤销授权。
+4. **Simplicity first; resist "accidental complexity."** Every layer should be understandable by one person in a reasonable amount of time. Complexity is the enemy of security and maintainability.
 
-### 二、分层规划
+5. **Data belongs to the user; applications request access.** Today every app hoards its own copy of your data. Flip it: **the user owns their own data vault, and applications request capabilities to read/write it** — data is portable and authorization is revocable.
 
-**指令集 / 芯片架构层**
-一套**开放、精简、统一**的 RISC 指令集(RISC-V 的思路),避免 x86 那样的授权枷锁和历史包袱。关键是把今天软件在做的安全机制下沉到硬件:**硬件级的能力寻址和内存安全**(类似 CHERI 的方向),让「越界访问」在硬件上就不可能发生。同时,CPU/GPU/NPU 从第一天就共享**统一内存模型**,而不是像现在这样各管一摊、靠拷贝来回搬数据。
+### II. Layer-by-layer plan
 
-**操作系统层**
-**微内核 + 能力安全**。内核只保留最小可信基(调度、内存、IPC),驱动和服务都跑在隔离的用户态——一个驱动崩了不会拖垮系统。抛弃 Unix 的 root/普通用户二元模型和「一切皆文件」的过度泛化,改成**统一对象 + 能力授权**。系统配置走**声明式、可重现**路线(NixOS 的思想):整个系统状态是一个可回滚、可复现的描述,而不是一堆互相打架的可变状态。
+**Instruction set / chip architecture layer**
+A single **open, lean, unified** RISC instruction set (in the spirit of RISC-V), avoiding the licensing shackles and historical baggage of x86. The key is to push the security mechanisms that software does today down into hardware: **hardware-level capability addressing and memory safety** (in the direction of CHERI), so that an "out-of-bounds access" is simply impossible in hardware. At the same time, CPU/GPU/NPU share a **unified memory model** from day one, rather than each managing its own and shuffling data back and forth by copying.
 
-**网络层**
-今天 IP 的原罪是**没有内建身份和加密**,于是 TLS、IPsec、VPN、NAT 全是补丁。重来的话:**身份和端到端加密是网络层原语**,每个数据包天然可认证;**移动性原生支持**(换 WiFi、换基站连接不断);**内容寻址与位置寻址并存**——你要的是「这份数据」,而不必关心它在哪台机器上。这样能顺手解决今天的 DDoS、地址耗尽、内容分发等一大堆问题。
+**Operating system layer**
+**Microkernel + capability security.** The kernel keeps only a minimal trusted base (scheduling, memory, IPC); drivers and services run in isolated user space — a driver crashing won't take down the system. Abandon Unix's root/ordinary-user binary model and the over-generalization of "everything is a file," in favor of **unified objects + capability authorization.** System configuration follows a **declarative, reproducible** route (the NixOS idea): the entire system state is a rollback-able, reproducible description, not a pile of mutable state fighting each other.
 
-**编程 / 应用层**
-默认**内存安全语言**。所有程序运行在**可移植的中间表示**上(WASM 的思想),一次编译、跨任意 ISA 无缝运行——这会彻底消灭今天 x86→ARM→龙芯 的移植噩梦。每个应用必须**显式声明它需要的能力**(网络?摄像头?哪个数据仓?),系统据此沙箱化,用户一眼能看清一个 App 到底能碰什么。
+**Network layer**
+The original sin of IP today is that it has **no built-in identity or encryption**, so TLS, IPsec, VPN, and NAT are all patches. Redone: **identity and end-to-end encryption are network-layer primitives**, every packet inherently authenticatable; **mobility is natively supported** (switch WiFi or cell tower without dropping connections); **content addressing and location addressing coexist** — you want "this piece of data," without caring which machine it's on. This incidentally solves a whole pile of today's problems: DDoS, address exhaustion, content distribution, and more.
 
-**数据 / 存储层**
-**内容寻址 + 不可变 + 版本化**为默认:数据用内容哈希标识,天然去重、可校验、可追溯历史;**加密为默认**,密钥归用户。备份、同步、协作都变成这一层的自然能力,而不是每个应用各自造轮子。
+**Programming / application layer**
+**Memory-safe languages by default.** All programs run on a **portable intermediate representation** (the WASM idea), compiled once and running seamlessly across any ISA — this completely eliminates today's porting nightmare between x86 and ARM. Every application must **explicitly declare the capabilities it needs** (network? camera? which data vault?), the system sandboxes it accordingly, and the user can see at a glance exactly what an app can touch.
 
-**身份与信任层(横切)**
-**去中心化身份**内建:用户持有自己的密钥,身份不绑定在某个平台。登录、签名、授权都基于密码学,而不是「账号+密码+一堆中心化数据库」。
+**Data / storage layer**
+**Content-addressed + immutable + versioned** by default: data is identified by content hash, giving natural deduplication, verifiability, and traceable history; **encryption by default**, with keys belonging to the user. Backup, sync, and collaboration all become natural capabilities of this layer, rather than each application reinventing the wheel.
 
-### 三、必须诚实面对的几个张力
+**Identity and trust layer (cross-cutting)**
+**Decentralized identity** built in: users hold their own keys, and identity is not bound to any single platform. Login, signing, and authorization are all based on cryptography, not "account + password + a pile of centralized databases."
 
-理想设计真要落地,绕不开这些矛盾:
+### III. Tensions you must face honestly
 
-- **统一 vs 创新。** 全栈统一标准能消灭碎片化,但**过度统一会扼杀多样性和试错**。健康的做法是统一「接口和协议」,而不是统一「实现」。
-- **优雅 vs 采用。** 历史一再证明「worse is better」——简陋但好用好传播的东西常常打败优雅的设计。再好的架构,迈不过生态和网络效应这道坎就是死的。
-- **安全/简洁 vs 性能/便利。** 能力检查、加密、隔离都有成本;默认最严会牺牲一部分性能和易用性,需要在硬件加速和默认值上反复权衡。
-- **中心化协调 vs 去中心化韧性。** 从头设计需要强协调(才能统一),但成品最好是去中心化的(才有韧性)。「用中心化的方式设计一个去中心化系统」本身就很拧巴。
+For an ideal design to actually land, these contradictions are unavoidable:
 
-### 四、一个现实的落点:信创
-
-这个思想实验对国产化(信创)有现实意义:**国产化是一次少有的「不背 x86 / Windows 历史包袱」的机会**。如果只是把国外那套照搬一遍(x86 授权、把安全继续当补丁打),就浪费了重做的价值。真正有想象力的方向,恰恰是上面这些**别人因为兼容包袱而做不动的事**——开放 ISA(龙芯的自主指令集、RISC-V)、内存安全的系统语言、能力安全的国产 OS、形式化验证的可信内核。**换道,而不是追赶**,才是「从头设计」的意义。
+- **Unification vs. innovation.** A fully unified stack-wide standard eliminates fragmentation, but **over-unification stifles diversity and experimentation.** The healthy approach is to unify "interfaces and protocols," not "implementations."
+- **Elegance vs. adoption.** History repeatedly proves "worse is better" — crude but usable and easily spread things often beat elegant designs. No matter how good the architecture, if it can't get over the hurdle of ecosystem and network effects, it's dead.
+- **Security/simplicity vs. performance/convenience.** Capability checks, encryption, and isolation all have costs; strictest-by-default sacrifices some performance and usability, requiring repeated trade-offs in hardware acceleration and default values.
+- **Centralized coordination vs. decentralized resilience.** Designing from scratch requires strong coordination (to unify), but the finished product is best decentralized (for resilience). "Designing a decentralized system in a centralized way" is itself awkward.

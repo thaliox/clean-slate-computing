@@ -15,6 +15,7 @@
 | 从头设计信息时代的全部软硬件 | [ideas/clean-slate-computing-stack.md](ideas/clean-slate-computing-stack.md) | [ideas/clean-slate-computing-stack.zh-CN.md](ideas/clean-slate-computing-stack.zh-CN.md) |
 | 完整规划蓝图(性能优先;借鉴 RISC-V 方法论的全新 ISA) | [ideas/clean-slate-computing-full-blueprint.md](ideas/clean-slate-computing-full-blueprint.md) | [ideas/clean-slate-computing-full-blueprint.zh-CN.md](ideas/clean-slate-computing-full-blueprint.zh-CN.md) |
 | 单层详解:指令集与芯片架构 | [ideas/layer-deep-dive-isa.md](ideas/layer-deep-dive-isa.md) | [ideas/layer-deep-dive-isa.zh-CN.md](ideas/layer-deep-dive-isa.zh-CN.md) |
+| 单层详解:内存与互连 | [ideas/layer-deep-dive-memory-interconnect.md](ideas/layer-deep-dive-memory-interconnect.md) | [ideas/layer-deep-dive-memory-interconnect.zh-CN.md](ideas/layer-deep-dive-memory-interconnect.zh-CN.md) |
 
 ## 说明
 

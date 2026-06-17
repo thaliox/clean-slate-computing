@@ -13,6 +13,7 @@
 | Idea | English | 中文 |
 |---|---|---|
 | 从头设计信息时代的全部软硬件 | [ideas/clean-slate-computing-stack.md](ideas/clean-slate-computing-stack.md) | [ideas/clean-slate-computing-stack.zh-CN.md](ideas/clean-slate-computing-stack.zh-CN.md) |
+| 完整规划蓝图(性能优先;借鉴 RISC-V 方法论的全新 ISA) | [ideas/clean-slate-computing-full-blueprint.md](ideas/clean-slate-computing-full-blueprint.md) | [ideas/clean-slate-computing-full-blueprint.zh-CN.md](ideas/clean-slate-computing-full-blueprint.zh-CN.md) |
 
 ## 说明
 
